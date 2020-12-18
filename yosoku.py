@@ -41,7 +41,7 @@ print(
 )
 print("The number of reflections per sulphur atom is", ref_per_s)
 
-email = "\nTo receive sample mounts and arrage beamtime (via BAG or rapid access), please email i23@diamond.ac.uk"
+email = "\nTo receive sample mounts and arrange beamtime (via BAG or rapid access), please email i23@diamond.ac.uk"
 
 if ref_per_s == 0:
     print("\nSomething went wrong...")
