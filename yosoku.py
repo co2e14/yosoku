@@ -51,7 +51,7 @@ print(
 )
 print("The number of reflections per sulphur atom is", ref_per_s)
 
-email = "\nTo receive sample mounts and arrange beamtime (via BAG or rapid access), please email i23@diamond.ac.uk"
+email = "\nTo receive sample mounts and arrange beamtime (via BAG or rapid access), please email armin.wagner@diamond.ac.uk"
 
 if ref_per_s == 0:
     print(f"{colours.FAIL}\nSomething went wrong...{colours.ENDC}")
@@ -66,7 +66,7 @@ if 500 <= ref_per_s < 800:
     print(
         f"{colours.FAIL}\nPhasing is unlikely to succeed with this crystal{colours.ENDC}"
     )
-    print("\nIf you would like to discuss this project, please email i23@diamond.ac.uk")
+    print("\nIf you would like to discuss this project, please email armin.wagner@diamond.ac.uk")
 if 800 <= ref_per_s < 1100:
     print(
         f"{colours.OKGREEN}\nPhasing is possible with this crystal, though will be a borderline case{colours.ENDC}"
