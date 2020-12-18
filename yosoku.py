@@ -36,15 +36,21 @@ if s_type == "s":
     s_in = str((input("Sequence (letters only): ")).replace(" ", ""))
     s = s_in.count("C") + s_in.count("M")
 
-ms = miller.build_set(
-    crystal_symmetry=cctbx.crystal.symmetry(
-        space_group_symbol=sg_in, unit_cell=(uc_in)
-    ),
-    anomalous_flag=True,
-    d_min=d_min_in,
-)
-refl = int(ms.size())
-ref_per_s = refl / (s * asu_mol)
+
+def predict(sg_in, uc_in, asu_mol, d_min, s):
+    ms = miller.build_set(
+        crystal_symmetry=cctbx.crystal.symmetry(
+            space_group_symbol=sg_in, unit_cell=(uc_in)
+        ),
+        anomalous_flag=True,
+        d_min=d_min_in,
+    )
+    refl = int(ms.size())
+    ref_per_s = refl / (s * asu_mol)
+    return ref_per_s
+
+
+ref_per_s = predict(sg_in, uc_in, asu_mol, d_min_in, s)
 
 print("\n***** RESULT *****")
 print(
@@ -67,7 +73,9 @@ if 500 <= ref_per_s < 800:
     print(
         f"{colours.FAIL}\nPhasing is unlikely to succeed with this crystal{colours.ENDC}"
     )
-    print("\nIf you would like to discuss this project, please email armin.wagner@diamond.ac.uk")
+    print(
+        "\nIf you would like to discuss this project, please email armin.wagner@diamond.ac.uk"
+    )
 if 800 <= ref_per_s < 1100:
     print(
         f"{colours.OKGREEN}\nPhasing is possible with this crystal, though will be a borderline case{colours.ENDC}"
