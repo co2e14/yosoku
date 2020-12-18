@@ -2,7 +2,7 @@ import cctbx
 from cctbx import miller
 from iotbx.pdb import hierarchy
 
-print("\n***** Prediction of SAD Phasing on I23 *****")
+print("\n***** Prediction of SAD Phasing on I23 *****\n")
 
 sg_in = input("Space Group (X123): ")
 uc_in = input("Unit Cell (a, b, c, al, be, ga): ")
