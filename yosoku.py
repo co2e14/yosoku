@@ -2,13 +2,14 @@ import cctbx
 from cctbx import miller
 from iotbx.pdb import hierarchy
 
+
 class colours:
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-    ENDC = '\033[0m'
+    OKGREEN = "\033[92m"
+    WARNING = "\033[93m"
+    FAIL = "\033[91m"
+    BOLD = "\033[1m"
+    UNDERLINE = "\033[4m"
+    ENDC = "\033[0m"
 
 
 print("\n***** Prediction of SAD Phasing on I23 *****\n")
@@ -32,7 +33,7 @@ if s_type == "p":
 if s_type == "n":
     s = int(input("Number of S atoms: "))
 if s_type == "s":
-    s = str(input("Sequence (letters only): ")).count("C" or "M")
+    s = str((input("Sequence (letters only): ")).replace(" ", "")).count("C" or "M")
 
 ms = miller.build_set(
     crystal_symmetry=cctbx.crystal.symmetry(
@@ -55,22 +56,34 @@ email = "\nTo receive sample mounts and arrange beamtime (via BAG or rapid acces
 if ref_per_s == 0:
     print(f"{colours.FAIL}\nSomething went wrong...{colours.ENDC}")
 if 0 < ref_per_s < 500:
-    print(f"{colours.FAIL}\nPhasing is highly unlikely to succeed with this crystal{colours.ENDC}")
     print(
-        "\nIf you would like to discuss phasing alternatives, please email i23@diamond.ac.uk"
+        f"{colours.FAIL}\nPhasing is highly unlikely to succeed with this crystal{colours.ENDC}"
+    )
+    print(
+        "\nIf you would like to discuss phasing alternatives, please email armin.wagner@diamond.ac.uk"
     )
 if 500 <= ref_per_s < 800:
-    print(f"{colours.WARNING}\nPhasing is unlikely to succeed with this crystal{colours.ENDC}")
+    print(
+        f"{colours.FAIL}\nPhasing is unlikely to succeed with this crystal{colours.ENDC}"
+    )
     print("\nIf you would like to discuss this project, please email i23@diamond.ac.uk")
 if 800 <= ref_per_s < 1100:
-    print(f"{colours.WARNING}\nPhasing is possible with this crystal, though will be a borderline case{colours.ENDC}")
+    print(
+        f"{colours.OKGREEN}\nPhasing is possible with this crystal, though will be a borderline case{colours.ENDC}"
+    )
     print(email)
 if 1100 <= ref_per_s < 2000:
-    print(f"{colours.OKGREEN}\nPhasing is likely to succeed with this crystal{colours.ENDC}")
+    print(
+        f"{colours.OKGREEN}\nPhasing is likely to succeed with this crystal{colours.ENDC}"
+    )
     print(email)
 if 2000 <= ref_per_s < 10000:
-    print(f"{colours.OKGREEN}\nPhasing is highly to succeed with this crystal{colours.ENDC}")
+    print(
+        f"{colours.OKGREEN}\nPhasing is highly to succeed with this crystal{colours.ENDC}"
+    )
     print(email)
 if 10000 <= ref_per_s:
-    print(f"{colours.OKGREEN}\nPhasing is essentially guaranteed to succeed with this crystal{colours.ENDC}")
+    print(
+        f"{colours.OKGREEN}\nPhasing is essentially guaranteed to succeed with this crystal{colours.ENDC}"
+    )
     print(email)
