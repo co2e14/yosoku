@@ -33,7 +33,8 @@ if s_type == "p":
 if s_type == "n":
     s = int(input("Number of S atoms: "))
 if s_type == "s":
-    s = str((input("Sequence (letters only): ")).replace(" ", "")).count("C" or "M")
+    s_in = str((input("Sequence (letters only): ")).replace(" ", ""))
+    s = s_in.count("C") + s_in.count("M")
 
 ms = miller.build_set(
     crystal_symmetry=cctbx.crystal.symmetry(
