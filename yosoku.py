@@ -33,6 +33,7 @@ ms = miller.build_set(
 refl = int(ms.size())
 ref_per_s = refl / (s * asu_mol)
 
+print("\n***** RESULT *****\n")
 print(
     "\nThere are", s, "sulphur atoms in your protein and", (s * asu_mol), "in the ASU"
 )
@@ -46,7 +47,7 @@ if 500 <= ref_per_s < 800:
     print("\nPhasing is unlikely to succeed with this crystal")
 if 800 <= ref_per_s < 1100:
     print(
-        "\nPhasing is possible to succeed with this crystal, though will be a borderline case"
+        "\nPhasing is possible with this crystal, though will be a borderline case"
     )
 if 1100 <= ref_per_s < 2000:
     print("\nPhasing is likely to succeed with this crystal")
@@ -54,3 +55,6 @@ if 2000 <= ref_per_s < 10000:
     print("\nPhasing is highly to succeed with this crystal")
 if 10000 <= ref_per_s:
     print("\nPhasing is essentially guaranteed to succeed with this crystal")
+
+if 800 <= ref_per_s:
+    ("To receive sample mount and arrage beamtime (via BAGG or rapid access), please email i23@diamond.ac.uk")
