@@ -63,7 +63,7 @@ print("\n***** Prediction of SAD Phasing on I23 *****\n")
 sg_in = "P321"
 uc_in = "150 150 45 90 90 120"
 asu_mol = 2
-d_min_in = 2.3
+d_min_in = 2.7
 s = 14
 
 # sg_in = input("Space Group (X123): ")
@@ -141,37 +141,58 @@ for high_lim in [x / 10.0 for x in range(14, 46, 1)]:
     res_v_refl += [(high_lim, ref_per_s_theory)]
 
 xpred, ypred = zip(*res_v_refl)
-x_line = np.arange(min(xpred), max(xpred), 0.1)
+# x_line = np.arange(min(xpred), max(xpred), 0.1)
 fit_eq, _ = curve_fit(objective_exp, xpred, ypred)
 a, b, c = fit_eq
 print("\nThe equation for this crystal is: y = %.5f e (-%.5fx) + %.5f" % (a, b, c))
-y_line = objective_exp(x_line, a, b, c)
+# y_line = objective_exp(x_line, a, b, c)
 
 
-plt.plot(x_line, y_line)
 plt.xlabel("d (Å)")
 plt.ylabel("# reflections / anomalous scatterer")
-predictline = plt.plot(*zip(*res_v_refl))
+predictline = plt.plot(*zip(*res_v_refl), label="res-ref (predict)")
 inputblob = plt.scatter(x=d_min_in, y=ref_per_s, c="b")
+plt.annotate(
+    "current crystal situation",
+    xy=(d_min_in, ref_per_s),
+    xytext=(10, 10),
+    textcoords="offset pixels",
+)
 redline = 800
 find_redline = objective_log_find_x(redline, a, b, c)
 print(
     "\nPhasing is essentially impossible if your crystal does not diffract to at least %.2fÅ"
     % (find_redline)
 )
-redline = plt.axhline(redline, c="r", linestyle="--")
+redline = plt.axhline(
+    redline,
+    c="r",
+    linestyle="--",
+    label="borderline = " + str(round(find_redline, 1)) + "Å",
+)
 yellowline = 1200
 find_yellowline = objective_log_find_x(yellowline, a, b, c)
 print(
     "For a chance at solving, you need a crystal which diffracts to %.2fÅ"
     % (find_yellowline)
 )
-yellowline = plt.axhline(yellowline, c="y", linestyle="--")
+yellowline = plt.axhline(
+    yellowline,
+    c="y",
+    linestyle="--",
+    label="acceptable = " + str(round(find_yellowline, 1)) + "Å",
+)
 greenline = 1800
 find_greenline = objective_log_find_x(greenline, a, b, c)
 print(
     "For a very good chance at solving, you need a crystal which diffracts to %.2fÅ"
     % (find_greenline)
 )
-greenline = plt.axhline(greenline, c="g", linestyle="--")
+greenline = plt.axhline(
+    greenline,
+    c="g",
+    linestyle="--",
+    label="ideal = " + str(round(find_greenline, 1)) + "Å",
+)
+plt.legend(loc="upper right")
 plt.show()
