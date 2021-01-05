@@ -170,7 +170,7 @@ redline = plt.axhline(
     linestyle="--",
     label="borderline = " + str(round(find_redline, 1)) + "Å",
 )
-yellowline = 1200
+yellowline = 1100
 find_yellowline = objective_log_find_x(yellowline, a, b, c)
 print(
     "For a chance at solving, you need a crystal which diffracts to %.2fÅ"
@@ -182,7 +182,7 @@ yellowline = plt.axhline(
     linestyle="--",
     label="acceptable = " + str(round(find_yellowline, 1)) + "Å",
 )
-greenline = 1800
+greenline = 2000
 find_greenline = objective_log_find_x(greenline, a, b, c)
 print(
     "For a very good chance at solving, you need a crystal which diffracts to %.2fÅ"
