@@ -4,9 +4,12 @@ from iotbx.pdb import hierarchy
 import decimal
 import matplotlib.pyplot as plt
 import numpy as np
+from numpy.core.numeric import NaN
 from scipy.optimize import curve_fit
 from scipy.special import expit
 import warnings
+from math import isnan
+
 
 # import os, libtbx.env_config
 # import libtbx.load_env
@@ -54,6 +57,10 @@ def objective_log_find_x(y, a, b, c):
     return np.log((y - c) / a) / -b
 
 
+# def round_to_1sf(x):
+#     return round(x, -int(floor(log10(abs(x)))))
+
+
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     fxn()
@@ -62,31 +69,31 @@ print("\n***** Prediction of SAD Phasing on I23 *****\n")
 
 sg_in = "P321"
 uc_in = "150 150 45 90 90 120"
-asu_mol = 2
-d_min_in = 2.7
-s = 14
+asu_mol = 1
+d_min_in = 2.6
+#s = 14
 
-# sg_in = input("Space Group (X123): ")
-# uc_in = input("Unit Cell (a, b, c, al, be, ga): ")
-# asu_mol = int(input("Number of molecules in the ASU: "))
-# d_min_in = float(input("High res: "))
-# s_type = input("Supply (p)db file, (s)equence, or (n)umber of scatterers: ")
+#sg_in = input("Space Group (X123): ")
+#uc_in = input("Unit Cell (a, b, c, al, be, ga): ")
+#asu_mol = int(input("Number of molecules in the ASU: "))
+#d_min_in = float(input("High res: "))
+s_type = input("Supply (p)db file, (s)equence, or (n)umber of scatterers: ")
 
-# if s_type == "p":
-#     pdb_file = str(input("Path to PDB file: "))
-#     s = 0
-#     pdb_in = hierarchy.input(file_name="6fax.pdb")
-#     for chain in pdb_in.hierarchy.only_model().chains():
-#         for residue_group in chain.residue_groups():
-#             for atom_group in residue_group.atom_groups():
-#                 for atom in atom_group.atoms():
-#                     if atom.element.strip().upper() == "S":
-#                         s += 1
-# if s_type == "n":
-#     s = int(input("Number of S atoms: "))
-# if s_type == "s":
-#     s_in = str((input("Sequence (letters only): ")).replace(" ", ""))
-#     s = s_in.count("C") + s_in.count("M")
+if s_type == "p":
+    pdb_file = str(input("Path to PDB file: "))
+    s = 0
+    pdb_in = hierarchy.input(file_name="6fax.pdb")
+    for chain in pdb_in.hierarchy.only_model().chains():
+        for residue_group in chain.residue_groups():
+            for atom_group in residue_group.atom_groups():
+                for atom in atom_group.atoms():
+                    if atom.element.strip().upper() == "S":
+                        s += 1
+if s_type == "n":
+    s = int(input("Number of S atoms: "))
+if s_type == "s":
+    s_in = str((input("Sequence (letters only): ")).replace(" ", ""))
+    s = s_in.count("C") + s_in.count("M")
 
 ref_per_s = predict(sg_in, uc_in, asu_mol, d_min_in, s)
 
@@ -160,28 +167,30 @@ plt.annotate(
 )
 redline = 800
 find_redline = objective_log_find_x(redline, a, b, c)
-print(
-    "\nPhasing is essentially impossible if your crystal does not diffract to at least %.2fÅ"
-    % (find_redline)
-)
-redline = plt.axhline(
-    redline,
-    c="r",
-    linestyle="--",
-    label="borderline = " + str(round(find_redline, 1)) + "Å",
-)
+if isnan(find_redline) == False:
+    print(
+        "\nPhasing is essentially impossible if your crystal does not diffract to at least %.2fÅ"
+        % (find_redline)
+    )
+    redline = plt.axhline(
+        redline,
+        c="r",
+        linestyle="--",
+        label="borderline = " + str(round(find_redline, 1)) + "Å",
+    )
 yellowline = 1100
 find_yellowline = objective_log_find_x(yellowline, a, b, c)
-print(
-    "For a chance at solving, you need a crystal which diffracts to %.2fÅ"
-    % (find_yellowline)
-)
-yellowline = plt.axhline(
-    yellowline,
-    c="y",
-    linestyle="--",
-    label="acceptable = " + str(round(find_yellowline, 1)) + "Å",
-)
+if isnan(find_yellowline) == False:
+    print(
+        "For a chance at solving, you need a crystal which diffracts to %.2fÅ"
+        % (find_yellowline)
+    )
+    yellowline = plt.axhline(
+        yellowline,
+        c="y",
+        linestyle="--",
+        label="acceptable = " + str(round(find_yellowline, 1)) + "Å",
+    )
 greenline = 2000
 find_greenline = objective_log_find_x(greenline, a, b, c)
 print(
