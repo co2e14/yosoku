@@ -1,7 +1,7 @@
 import cctbx
 from cctbx import miller
+from iotbx import pdb
 from iotbx.pdb import hierarchy
-import decimal
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy.core.numeric import NaN
@@ -32,7 +32,7 @@ def fxn():
     warnings.warn("runtime", RuntimeWarning)
 
 
-def predict(sg_in, uc_in, asu_mol, d_min, s):
+def predict(sg_in, uc_in, asu_mol, d_min, s, s_type):
     ms = miller.build_set(
         crystal_symmetry=cctbx.crystal.symmetry(
             space_group_symbol=sg_in, unit_cell=(uc_in)
@@ -41,7 +41,10 @@ def predict(sg_in, uc_in, asu_mol, d_min, s):
         d_min=d_min,
     )
     refl = int(ms.size())
-    ref_per_s = refl / (s * asu_mol)
+    if s_type == "p":
+        ref_per_s = refl / s
+    else:
+        ref_per_s = refl / (s * asu_mol)
     return ref_per_s
 
 
@@ -57,26 +60,22 @@ def objective_log_find_x(y, a, b, c):
     return np.log((y - c) / a) / -b
 
 
-# def round_to_1sf(x):
-#     return round(x, -int(floor(log10(abs(x)))))
-
-
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     fxn()
 
 print("\n***** Prediction of SAD Phasing on I23 *****\n")
 
-sg_in = "P321"
-uc_in = "150 150 45 90 90 120"
-asu_mol = 1
-d_min_in = 2.6
-#s = 14
+# sg_in = "P321"
+# uc_in = "150 150 45 90 90 120"
+# asu_mol = 1
+# d_min_in = 2.6
+# s = 14
 
-#sg_in = input("Space Group (X123): ")
-#uc_in = input("Unit Cell (a, b, c, al, be, ga): ")
-#asu_mol = int(input("Number of molecules in the ASU: "))
-#d_min_in = float(input("High res: "))
+sg_in = input("Space Group (# or name): ")
+uc_in = input("Unit Cell (a, b, c, al, be, ga): ")
+asu_mol = int(input("Number of molecules in the ASU: "))
+d_min_in = float(input("High res: "))
 s_type = input("Supply (p)db file, (s)equence, or (n)umber of scatterers: ")
 
 if s_type == "p":
@@ -95,7 +94,7 @@ if s_type == "s":
     s_in = str((input("Sequence (letters only): ")).replace(" ", ""))
     s = s_in.count("C") + s_in.count("M")
 
-ref_per_s = predict(sg_in, uc_in, asu_mol, d_min_in, s)
+ref_per_s = predict(sg_in, uc_in, asu_mol, d_min_in, s, s_type)
 
 print("\n***** RESULT *****")
 print(
@@ -144,15 +143,13 @@ if 10000 <= ref_per_s:
 
 res_v_refl = []
 for high_lim in [x / 10.0 for x in range(14, 46, 1)]:
-    ref_per_s_theory = predict(sg_in, uc_in, asu_mol, high_lim, s)
+    ref_per_s_theory = predict(sg_in, uc_in, asu_mol, high_lim, s, s_type)
     res_v_refl += [(high_lim, ref_per_s_theory)]
 
 xpred, ypred = zip(*res_v_refl)
-# x_line = np.arange(min(xpred), max(xpred), 0.1)
 fit_eq, _ = curve_fit(objective_exp, xpred, ypred)
 a, b, c = fit_eq
 print("\nThe equation for this crystal is: y = %.5f e (-%.5fx) + %.5f" % (a, b, c))
-# y_line = objective_exp(x_line, a, b, c)
 
 
 plt.xlabel("d (Å)")
