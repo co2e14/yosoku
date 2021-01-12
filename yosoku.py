@@ -18,55 +18,45 @@ class Phasepred(object):
         self.uc_in = uc_in
         self.s_in = s_in
         self.d_min_in = d_min_in
+        self.OKGREEN = "\033[92m"
+        self.WARNING = "\033[93m"
+        self.FAIL = "\033[91m"
+        self.BOLD = "\033[1m"
+        self.UNDERLINE = "\033[4m"
+        self.ENDC = "\033[0m"
+        self.s, self.asu_pred = self.matthewsrupp()
+        self.fit_eq = self.resrange()
 
 
-    def colours(self):
-        OKGREEN = "\033[92m"
-        WARNING = "\033[93m"
-        FAIL = "\033[91m"
-        BOLD = "\033[1m"
-        UNDERLINE = "\033[4m"
-        ENDC = "\033[0m"
-
-
-    def fxn():
-        warnings.warn("runtime", RuntimeWarning)
-
-
-    def predict(self,sg_in,uc_in,asu_mol,d_min_in,s):
+    def predict(self):
         ms = miller.build_set(
             crystal_symmetry=cctbx.crystal.symmetry(
-                space_group_symbol=sg_in, unit_cell=(uc_in)
+                space_group_symbol=self.sg_in, unit_cell=(self.uc_in)
             ),
             anomalous_flag=True,
-            d_min=d_min_in,
+            d_min=self.d_min_in,
         )
         refl = int(ms.size())
-        ref_per_s = refl / (s * asu_mol)
-        return ref_per_s
+        self.ref_per_s = refl / (self.s * self.asu_mol)
 
 
-    def matthewsrupp(self,s_in):
-        if s_in.isdigit():
-            s = int(s_in)
-            return s
-        elif type(s_in) == str:
-            s = s_in.replace(" ", "")
-            s = int(s_in.count("C") + s_in.count("M"))
-            s_num = len(s_in)
+    def matthewsrupp(self):
+        if self.s_in.isdigit():
+            s = int(self.s_in)
+            return s, None
+        elif type(self.s_in) == str:
+            s = int(self.s_in.count("C") + self.s_in.count("M"))
+            s_in = self.s_in.replace(" ", "")
+            s_num = len(self.s_in)
             asu_pred = matthews.matthews_rupp(
                 crystal_symmetry=cctbx.crystal.symmetry(
-                    space_group_symbol=sg_in, unit_cell=(uc_in),
+                    space_group_symbol=self.sg_in, unit_cell=(self.uc_in),
                 ),
                 n_residues=s_num,
             )
-            return s_num, asu_pred
+            return s, asu_pred
         else:
-            pass
-
-
-    def objective_poly(self,x, a, b, c):
-        return a * x + b * x ** 2 + c
+            return None, None
 
 
     def objective_exp(self,x, a, b, c):
@@ -77,20 +67,19 @@ class Phasepred(object):
         return np.log((y - c) / a) / -b
 
     def resrange(self):
-        res_v_refl = []
+        self.res_v_refl = []
         for high_lim in [x / 10.0 for x in range(14, 46, 1)]:
-            ref_per_s_theory = predict(sg_in, uc_in, asu_mol, high_lim, s)
-            res_v_refl += [(high_lim, ref_per_s_theory)]
-        xpred, ypred = zip(*res_v_refl)
-        fit_eq, _ = curve_fit(objective_exp, xpred, ypred)
-        a, b, c = fit_eq
-
+            self.predict() # make local (return)
+            self.res_v_refl += [(high_lim, self.ref_per_s)]
+        xpred, ypred = zip(*self.res_v_refl)
+        fit_eq, _ = curve_fit(self.objective_exp, xpred, ypred)
+        return fit_eq
 
     def makegraph(self):
         plt.xlabel("d (Å)")
         plt.ylabel("# reflections / anomalous scatterer")
-        predictline = plt.plot(*zip(*res_v_refl), label="res-ref (predict)")
-        inputblob = plt.scatter(x=d_min_in, y=ref_per_s, c="b")
+        predictline = plt.plot(*zip(*self.res_v_refl), label="res-ref (predict)")
+        inputblob = plt.scatter(x=self.d_min_in, y=self.ref_per_s, c="b")
         plt.annotate(
             "current crystal situation",
             xy=(d_min_in, ref_per_s),
@@ -98,7 +87,7 @@ class Phasepred(object):
             textcoords="offset pixels",
         )
         redline = 800
-        find_redline = objective_log_find_x(redline, a, b, c)
+        find_redline = self.objective_log_find_x(redline, *self.fit_eq)
         if isnan(find_redline) == False:
             redline = plt.axhline(
                 redline,
