@@ -122,7 +122,7 @@ if __name__ == "__main__":
     d_min_in = float(input("High res: "))
     s_in = input("Input sequence or number of scatterers: ")
     asu_mol = int(input("Number of molecules in the ASU: "))
-    email = 
+    email = "\nTo receive sample mounts and arrange beamtime (via BAG or rapid access), please email armin.wagner@diamond.ac.uk\n"
 
     predicted = Phasepred(sg_in,uc_in,d_min_in,s_in)
 
