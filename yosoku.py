@@ -13,11 +13,11 @@ class Phasepred(object):
     """
     docstring here please
     """
-    def __init__(self,sg_in,uc_in,d_min_in='3.0',s_in):
+    def __init__(self,sg_in,uc_in,s_in,d_min_in=3.0):
         self.sg_in = sg_in
         self.uc_in = uc_in
-        self.d_min_in = d_min_in
         self.s_in = s_in
+        self.d_min_in = d_min_in
 
 
     def colours(self):
