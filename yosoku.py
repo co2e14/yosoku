@@ -18,12 +18,6 @@ class Phasepred(object):
         self.uc_in = uc_in
         self.s_in = s_in
         self.d_min_in = d_min_in
-        self.OKGREEN = "\033[92m"
-        self.WARNING = "\033[93m"
-        self.FAIL = "\033[91m"
-        self.BOLD = "\033[1m"
-        self.UNDERLINE = "\033[4m"
-        self.ENDC = "\033[0m"
         self.s, self.asu_pred = self.matthewsrupp()
         self.fit_eq = self.resrange()
 
@@ -78,11 +72,11 @@ class Phasepred(object):
     def makegraph(self):
         plt.xlabel("d (Å)")
         plt.ylabel("# reflections / anomalous scatterer")
-        predictline = plt.plot(*zip(*self.res_v_refl), label="res-ref (predict)")
-        inputblob = plt.scatter(x=self.d_min_in, y=self.ref_per_s, c="b")
+        plt.plot(*zip(*self.res_v_refl), label="res-ref (predict)")
+        plt.scatter(x=self.d_min_in, y=self.ref_per_s, c="b")
         plt.annotate(
             "current crystal situation",
-            xy=(d_min_in, ref_per_s),
+            xy=(self.d_min_in, self.ref_per_s),
             xytext=(10, 10),
             textcoords="offset pixels",
         )
@@ -96,7 +90,7 @@ class Phasepred(object):
                 label="borderline = " + str(round(find_redline, 1)) + "Å",
             )
         yellowline = 1100
-        find_yellowline = objective_log_find_x(yellowline, a, b, c)
+        find_yellowline = self.objective_log_find_x(yellowline, a, b, c)
         if isnan(find_yellowline) == False:
             yellowline = plt.axhline(
                 yellowline,
@@ -105,7 +99,7 @@ class Phasepred(object):
                 label="acceptable = " + str(round(find_yellowline, 1)) + "Å",
             )
         greenline = 2000
-        find_greenline = objective_log_find_x(greenline, a, b, c)
+        find_greenline = self.objective_log_find_x(greenline, a, b, c)
         greenline = plt.axhline(
             greenline,
             c="g",
@@ -117,48 +111,54 @@ class Phasepred(object):
 
 
 if __name__ == "__main__":
+    OKGREEN = "\033[92m"
+    WARNING = "\033[93m"
+    FAIL = "\033[91m"
+    BOLD = "\033[1m"
+    UNDERLINE = "\033[4m"
+    ENDC = "\033[0m"
     sg_in = input("Space Group (# or name): ")
     uc_in = input("Unit Cell (a, b, c, al, be, ga): ")
     d_min_in = float(input("High res: "))
     s_in = input("Input sequence or number of scatterers: ")
     asu_mol = int(input("Number of molecules in the ASU: "))
+    email = 
 
+    predicted = Phasepred(sg_in,uc_in,d_min_in,s_in)
 
-    predict = Phasepred(sg_in,uc_in,d_min_in,s_in)
-
-    if ref_per_s == 0:
-        print(f"{Phasepred.colours.FAIL}\nSomething went wrong...{Phasepred.colours.ENDC}")
-    if 0 < ref_per_s < 500:
+    if predicted.ref_per_s == 0:
+        print(f"{FAIL}\nSomething went wrong...{ENDC}")
+    if 0 < predicted.ref_per_s < 500:
         print(
-            f"{Phasepred.colours.FAIL}\nPhasing is highly unlikely to succeed with this crystal{Phasepred.colours.ENDC}"
+            f"{FAIL}\nPhasing is highly unlikely to succeed with this crystal{ENDC}"
         )
         print(
             "\nIf you would like to discuss phasing alternatives, please email armin.wagner@diamond.ac.uk"
         )
-    if 500 <= ref_per_s < 800:
+    if 500 <= predicted.ref_per_s < 800:
         print(
-            f"{Phasepred.colours.FAIL}\nPhasing is unlikely to succeed with this crystal{Phasepred.colours.ENDC}"
+            f"{FAIL}\nPhasing is unlikely to succeed with this crystal{ENDC}"
         )
         print(
             "\nIf you would like to discuss this project, please email armin.wagner@diamond.ac.uk"
         )
-    if 800 <= ref_per_s < 1100:
+    if 800 <= predicted.ref_per_s < 1100:
         print(
-            f"{Phasepred.colours.OKGREEN}\nPhasing is possible with this crystal, though will be a borderline case{Phasepred.colours.ENDC}"
+            f"{OKGREEN}\nPhasing is possible with this crystal, though will be a borderline case{ENDC}"
         )
         print(email)
-    if 1100 <= ref_per_s < 2000:
+    if 1100 <= predicted.ref_per_s < 2000:
         print(
-            f"{Phasepred.colours.OKGREEN}\nPhasing is likely to succeed with this crystal{Phasepred.colours.ENDC}"
+            f"{OKGREEN}\nPhasing is likely to succeed with this crystal{ENDC}"
         )
         print(email)
-    if 2000 <= ref_per_s < 10000:
+    if 2000 <= predicted.ref_per_s < 10000:
         print(
-            f"{Phasepred.colours.OKGREEN}\nPhasing is highly to succeed with this crystal{Phasepred.colours.ENDC}"
+            f"{OKGREEN}\nPhasing is highly to succeed with this crystal{ENDC}"
         )
         print(email)
-    if 10000 <= ref_per_s:
+    if 10000 <= predicted.ref_per_s:
         print(
-            f"{Phasepred.colours.OKGREEN}\nPhasing is essentially guaranteed to succeed with this crystal{Phasepred.colours.ENDC}"
+            f"{OKGREEN}\nPhasing is essentially guaranteed to succeed with this crystal{ENDC}"
         )
         print(email)
