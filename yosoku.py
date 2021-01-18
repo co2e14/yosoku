@@ -35,7 +35,7 @@ class Phasepred(object):
 
 
     def matthewsrupp(self):
-        if self.s_in.isdigit():
+        if self.s_in == float:
             s = int(self.s_in)
             return s, None
         elif type(self.s_in) == str:
