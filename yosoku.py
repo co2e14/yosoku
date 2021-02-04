@@ -5,6 +5,7 @@ import ast
 from mmtbx.scaling import matthews
 import matplotlib.pyplot as plt
 import numpy as np
+from numpy.testing._private.utils import assert_equal
 from scipy.optimize import curve_fit
 from math import isnan
 
@@ -13,13 +14,25 @@ class Phasepred(object):
     """
     docstring here please
     """
-    def __init__(self,sg_in,uc_in,s_in,d_min_in=3.0):
-        self.sg_in = sg_in
-        self.uc_in = uc_in
-        self.s_in = s_in
-        self.d_min_in = d_min_in
+    def __init__(self):
+        self.get_inp()
         self.s, self.asu_pred = self.matthewsrupp()
+        if self.asu_pred is None:
+            self.asu_mol = int(input("Number of molecules in the ASU: "))
+        else:
+            answer = input(f"Number of molecules in the ASU predicted at {self.asu_pred}: ")
+            if not answer:
+                self.asu_mol = self.asu_pred
+            else:
+                self.asu_mol = int(answer)
         self.fit_eq = self.resrange()
+
+
+    def get_inp(self):
+        self.sg_in = input("Space Group (# or name): ")
+        self.uc_in = input("Unit Cell (a, b, c, al, be, ga): ")
+        self.d_min_in = input("High res: ")
+        self.s_in = input("Input sequence or number of scatterers: ")
 
 
     def predict(self):
@@ -28,7 +41,7 @@ class Phasepred(object):
                 space_group_symbol=self.sg_in, unit_cell=(self.uc_in)
             ),
             anomalous_flag=True,
-            d_min=self.d_min_in,
+            d_min=float(self.d_min_in),
         )
         refl = int(ms.size())
         self.ref_per_s = refl / (self.s * self.asu_mol)
@@ -117,14 +130,9 @@ if __name__ == "__main__":
     BOLD = "\033[1m"
     UNDERLINE = "\033[4m"
     ENDC = "\033[0m"
-    sg_in = input("Space Group (# or name): ")
-    uc_in = input("Unit Cell (a, b, c, al, be, ga): ")
-    d_min_in = float(input("High res: "))
-    s_in = input("Input sequence or number of scatterers: ")
-    asu_mol = int(input("Number of molecules in the ASU: "))
     email = "\nTo receive sample mounts and arrange beamtime (via BAG or rapid access), please email armin.wagner@diamond.ac.uk\n"
 
-    predicted = Phasepred(sg_in,uc_in,d_min_in,s_in)
+    predicted = Phasepred()
 
     if predicted.ref_per_s == 0:
         print(f"{FAIL}\nSomething went wrong...{ENDC}")
