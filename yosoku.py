@@ -14,26 +14,27 @@ class Phasepred(object):
     """
     docstring here please
     """
+
     def __init__(self):
         self.get_inp()
         self.s, self.asu_pred = self.matthewsrupp()
         if self.asu_pred is None:
             self.asu_mol = int(input("Number of molecules in the ASU: "))
         else:
-            answer = input(f"Number of molecules in the ASU predicted at {self.asu_pred}: ")
+            answer = input(
+                f"Number of molecules in the ASU predicted at {self.asu_pred.n_copies}: "
+            )
             if not answer:
                 self.asu_mol = self.asu_pred
             else:
                 self.asu_mol = int(answer)
         self.fit_eq = self.resrange()
 
-
     def get_inp(self):
         self.sg_in = input("Space Group (# or name): ")
         self.uc_in = input("Unit Cell (a, b, c, al, be, ga): ")
         self.d_min_in = input("High res: ")
         self.s_in = input("Input sequence or number of scatterers: ")
-
 
     def predict(self):
         ms = miller.build_set(
@@ -46,9 +47,8 @@ class Phasepred(object):
         refl = int(ms.size())
         self.ref_per_s = refl / (self.s * self.asu_mol)
 
-
     def matthewsrupp(self):
-        if self.s_in == float:
+        if self.s_in.isdigit():
             s = int(self.s_in)
             return s, None
         elif type(self.s_in) == str:
@@ -65,18 +65,16 @@ class Phasepred(object):
         else:
             return None, None
 
-
-    def objective_exp(self,x, a, b, c):
+    def objective_exp(self, x, a, b, c):
         return a * np.exp(-b * x) + c
 
-
-    def objective_log_find_x(self,y, a, b, c):
+    def objective_log_find_x(self, y, a, b, c):
         return np.log((y - c) / a) / -b
 
     def resrange(self):
         self.res_v_refl = []
         for high_lim in [x / 10.0 for x in range(14, 46, 1)]:
-            self.predict() # make local (return)
+            self.predict()  # make local (return)
             self.res_v_refl += [(high_lim, self.ref_per_s)]
         xpred, ypred = zip(*self.res_v_refl)
         fit_eq, _ = curve_fit(self.objective_exp, xpred, ypred)
@@ -137,16 +135,12 @@ if __name__ == "__main__":
     if predicted.ref_per_s == 0:
         print(f"{FAIL}\nSomething went wrong...{ENDC}")
     if 0 < predicted.ref_per_s < 500:
-        print(
-            f"{FAIL}\nPhasing is highly unlikely to succeed with this crystal{ENDC}"
-        )
+        print(f"{FAIL}\nPhasing is highly unlikely to succeed with this crystal{ENDC}")
         print(
             "\nIf you would like to discuss phasing alternatives, please email armin.wagner@diamond.ac.uk"
         )
     if 500 <= predicted.ref_per_s < 800:
-        print(
-            f"{FAIL}\nPhasing is unlikely to succeed with this crystal{ENDC}"
-        )
+        print(f"{FAIL}\nPhasing is unlikely to succeed with this crystal{ENDC}")
         print(
             "\nIf you would like to discuss this project, please email armin.wagner@diamond.ac.uk"
         )
@@ -156,14 +150,10 @@ if __name__ == "__main__":
         )
         print(email)
     if 1100 <= predicted.ref_per_s < 2000:
-        print(
-            f"{OKGREEN}\nPhasing is likely to succeed with this crystal{ENDC}"
-        )
+        print(f"{OKGREEN}\nPhasing is likely to succeed with this crystal{ENDC}")
         print(email)
     if 2000 <= predicted.ref_per_s < 10000:
-        print(
-            f"{OKGREEN}\nPhasing is highly to succeed with this crystal{ENDC}"
-        )
+        print(f"{OKGREEN}\nPhasing is highly to succeed with this crystal{ENDC}")
         print(email)
     if 10000 <= predicted.ref_per_s:
         print(
