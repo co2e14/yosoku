@@ -2,6 +2,7 @@ from re import VERBOSE
 import cctbx
 from cctbx import miller
 import ast
+from libtbx.forward_compatibility import _advertise_subprocess
 from mmtbx.scaling import matthews
 import matplotlib.pyplot as plt
 import numpy as np
@@ -15,12 +16,16 @@ class Phasepred(object):
     docstring here please
     """
 
-    def __init__(self):
-        self.get_inp()
+    def __init__(self, sg_in, uc_in, d_min_in, s_in):
+        self.sg_in = sg_in
+        self.uc_in = uc_in
+        self.d_min_in = d_min_in
+        self.s_in = s_in
         self.s, self.asu_pred = self.matthewsrupp()
         if self.asu_pred is None:
             self.asu_mol = int(input("Number of molecules in the ASU: "))
         else:
+            print(self.asu_pred.table)
             answer = input(
                 f"Number of molecules in the ASU predicted at {self.asu_pred.n_copies}: "
             )
@@ -30,11 +35,13 @@ class Phasepred(object):
                 self.asu_mol = int(answer)
         self.fit_eq = self.resrange()
 
-    def get_inp(self):
-        self.sg_in = input("Space Group (# or name): ")
-        self.uc_in = input("Unit Cell (a, b, c, al, be, ga): ")
-        self.d_min_in = input("High res: ")
-        self.s_in = input("Input sequence or number of scatterers: ")
+
+    def fromgui(self, sg_in, uc_in, d_min_in, s_in):
+        self.sg_in = sg_in
+        self.uc_in = uc_in
+        self.d_min_in = d_min_in
+        self.s_in = s_in
+
 
     def predict(self):
         ms = miller.build_set(
@@ -130,7 +137,12 @@ if __name__ == "__main__":
     ENDC = "\033[0m"
     email = "\nTo receive sample mounts and arrange beamtime (via BAG or rapid access), please email armin.wagner@diamond.ac.uk\n"
 
-    predicted = Phasepred()
+    sg_in = input("Space Group (# or name): ")
+    uc_in = input("Unit Cell (a, b, c, al, be, ga): ")
+    d_min_in = input("High res: ")
+    s_in = input("Input sequence or number of scatterers: ")
+
+    predicted = Phasepred(sg_in, uc_in, d_min_in, s_in)
 
     if predicted.ref_per_s == 0:
         print(f"{FAIL}\nSomething went wrong...{ENDC}")
