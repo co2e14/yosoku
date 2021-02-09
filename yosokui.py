@@ -4,7 +4,7 @@ import PySimpleGUI as sg
 
 sg.theme('Dark Blue 3')  # please make your windows colorful
 
-layout = [[sg.Text('Enter a Number')],
+layout = [[sg.Text('Enter crystal information and press start')],
           [sg.Text('Spacegroup: '), sg.Input('', key='sg')],
           [sg.Text('Unit Cell: '), sg.Input('', key='uc')],
           [sg.Text('High Res: '), sg.Input('', key='hr')],

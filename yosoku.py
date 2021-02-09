@@ -10,6 +10,7 @@ from numpy.testing._private.utils import assert_equal
 from scipy.optimize import curve_fit
 from math import isnan
 
+#unset LIBTBX_BUILD
 
 class Phasepred(object):
     """
