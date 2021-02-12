@@ -1,48 +1,35 @@
-from re import VERBOSE
 import cctbx
 from cctbx import miller
-import ast
-from libtbx.forward_compatibility import _advertise_subprocess
 from mmtbx.scaling import matthews
 import matplotlib.pyplot as plt
 import numpy as np
-from numpy.testing._private.utils import assert_equal
 from scipy.optimize import curve_fit
 from math import isnan
+import os
+import time
 
-#unset LIBTBX_BUILD
+path = os.getcwd()
+
+# unset LIBTBX_BUILD
+
 
 class Phasepred(object):
     """
-    docstring here please
+    I23 S-SAD phasing prediction
     """
 
-    def __init__(self, sg_in, uc_in, d_min_in, s_in):
+    def __init__(self, sg_in, uc_in, d_min_in, s_in, outfile=None):
         self.sg_in = sg_in
         self.uc_in = uc_in
         self.d_min_in = d_min_in
         self.s_in = s_in
         self.s, self.asu_pred = self.matthewsrupp()
-        if self.asu_pred is None:
-            self.asu_mol = int(input("Number of molecules in the ASU: "))
-        else:
-            print(self.asu_pred.table)
-            answer = input(
-                f"Number of molecules in the ASU predicted at {self.asu_pred.n_copies}: "
-            )
-            if not answer:
-                self.asu_mol = self.asu_pred
-            else:
-                self.asu_mol = int(answer)
+        self.outfile = outfile or os.path.join(path, time.strftime("%Y%m%dT%H%M%S.png"))
+
+    def asu_control(self, asu_in):
+        self.asu_mol = int(asu_in)
         self.fit_eq = self.resrange()
-
-
-    def fromgui(self, sg_in, uc_in, d_min_in, s_in):
-        self.sg_in = sg_in
-        self.uc_in = uc_in
-        self.d_min_in = d_min_in
-        self.s_in = s_in
-
+        self.makegraph()
 
     def predict(self):
         ms = miller.build_set(
@@ -61,7 +48,7 @@ class Phasepred(object):
             return s, None
         elif type(self.s_in) == str:
             s = int(self.s_in.count("C") + self.s_in.count("M"))
-            s_in = self.s_in.replace(" ", "")
+            self.s_in = self.s_in.replace(" ", "")
             s_num = len(self.s_in)
             asu_pred = matthews.matthews_rupp(
                 crystal_symmetry=cctbx.crystal.symmetry(
@@ -82,6 +69,7 @@ class Phasepred(object):
     def resrange(self):
         self.res_v_refl = []
         for high_lim in [x / 10.0 for x in range(14, 46, 1)]:
+            self.d_min_in = high_lim
             self.predict()  # make local (return)
             self.res_v_refl += [(high_lim, self.ref_per_s)]
         xpred, ypred = zip(*self.res_v_refl)
@@ -89,6 +77,8 @@ class Phasepred(object):
         return fit_eq
 
     def makegraph(self):
+        plt.clf()
+        a, b, c = self.fit_eq
         plt.xlabel("d (Å)")
         plt.ylabel("# reflections / anomalous scatterer")
         plt.plot(*zip(*self.res_v_refl), label="res-ref (predict)")
@@ -126,7 +116,7 @@ class Phasepred(object):
             label="ideal = " + str(round(find_greenline, 1)) + "Å",
         )
         plt.legend(loc="upper right")
-        plt.show()
+        plt.savefig(self.outfile)
 
 
 if __name__ == "__main__":
@@ -144,6 +134,17 @@ if __name__ == "__main__":
     s_in = input("Input sequence or number of scatterers: ")
 
     predicted = Phasepred(sg_in, uc_in, d_min_in, s_in)
+    if predicted.asu_pred is None:
+        pass
+    else:
+        print(predicted.asu_pred.table)
+        print(
+            "Based on the table above, you likely have",
+            predicted.asu_pred.n_copies,
+            "molecule(s) in the asu.\n",
+        )
+    asu_in = input("Number of molecules in the asu: ")
+    predicted.asu_control(asu_in)
 
     if predicted.ref_per_s == 0:
         print(f"{FAIL}\nSomething went wrong...{ENDC}")
