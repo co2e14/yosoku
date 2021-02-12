@@ -1,0 +1,4 @@
+name: cctbx
+channels:
+  - defaults
+prefix: C:\Users\ULTMT\anaconda3\envs\cctbx\envs\cctbx
