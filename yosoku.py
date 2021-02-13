@@ -22,6 +22,7 @@ class Phasepred(object):
         self.sg_in = sg_in
         self.uc_in = uc_in
         self.d_min_in = d_min_in
+        self.d_min_static = d_min_in
         self.s_in = s_in
         self.s, self.asu_pred = self.matthewsrupp()
         self.outfile = outfile or os.path.join(path, time.strftime("%Y%m%dT%H%M%S.png"))
@@ -81,8 +82,10 @@ class Phasepred(object):
         a, b, c = self.fit_eq
         plt.xlabel("d (Å)")
         plt.ylabel("# reflections / anomalous scatterer")
-        plt.plot(*zip(*self.res_v_refl), label="res-ref (predict)")
+        #self.d_min_in = self.d_min_static
+        #self.predict()
         plt.scatter(x=self.d_min_in, y=self.ref_per_s, c="b")
+        plt.plot(*zip(*self.res_v_refl), label="res-ref (predict)")
         plt.annotate(
             "current crystal situation",
             xy=(self.d_min_in, self.ref_per_s),
