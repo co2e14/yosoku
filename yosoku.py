@@ -10,8 +10,6 @@ import time
 
 path = os.getcwd()
 
-# unset LIBTBX_BUILD
-
 
 class Phasepred(object):
     """
@@ -19,6 +17,7 @@ class Phasepred(object):
     """
 
     def __init__(self, sg_in, uc_in, d_min_in, s_in, outfile=None):
+        os.system("unset LIBTBX_BUILD")
         self.sg_in = sg_in
         self.uc_in = uc_in
         self.d_min_in = d_min_in
@@ -29,6 +28,8 @@ class Phasepred(object):
 
     def asu_control(self, asu_in):
         self.asu_mol = int(asu_in)
+        self.predict()
+        self.ref_per_static = self.ref_per_s
         self.fit_eq = self.resrange()
         self.makegraph()
 
@@ -82,13 +83,11 @@ class Phasepred(object):
         a, b, c = self.fit_eq
         plt.xlabel("d (Å)")
         plt.ylabel("# reflections / anomalous scatterer")
-        #self.d_min_in = self.d_min_static
-        #self.predict()
-        plt.scatter(x=self.d_min_in, y=self.ref_per_s, c="b")
+        plt.scatter(x=float(self.d_min_static), y=self.ref_per_static, c="b")
         plt.plot(*zip(*self.res_v_refl), label="res-ref (predict)")
         plt.annotate(
             "current crystal situation",
-            xy=(self.d_min_in, self.ref_per_s),
+            xy=(float(self.d_min_static), self.ref_per_static),
             xytext=(10, 10),
             textcoords="offset pixels",
         )
