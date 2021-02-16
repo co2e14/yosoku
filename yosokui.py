@@ -2,7 +2,7 @@ import yosoku
 import PySimpleGUI as sg
 import os
 
-
+os.system("unset LIBTBX_BUILD")
 sg.theme("")
 
 inputcolumn = [

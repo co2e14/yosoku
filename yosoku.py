@@ -9,6 +9,7 @@ import os
 import time
 
 path = os.getcwd()
+os.system("unset LIBTBX_BUILD")
 
 
 class Phasepred(object):
