@@ -49,9 +49,10 @@ class Phasepred(object):
         if self.s_in.isdigit():
             s = int(self.s_in)
             return s, None
-        elif type(self.s_in) == str:
-            s = int(self.s_in.count("C") + self.s_in.count("M"))
+        elif type(self.s_in) == str:            
             self.s_in = self.s_in.replace(" ", "")
+            self.s_in = self.s_in.upper()
+            s = int(self.s_in.count("C") + self.s_in.count("M"))
             s_num = len(self.s_in)
             asu_pred = matthews.matthews_rupp(
                 crystal_symmetry=cctbx.crystal.symmetry(
