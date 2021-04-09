@@ -21,7 +21,7 @@ os.system("unset LIBTBX_BUILD")
 def matthewsrupp(sg_in, uc_in, s_in):
     if s_in.isdigit():
         s = int(s_in)
-        return s, None
+        return s, None, None
     elif type(s_in) == str:
         s_in = s_in.replace(" ", "")
         s_in = s_in.upper()
@@ -35,11 +35,11 @@ def matthewsrupp(sg_in, uc_in, s_in):
         )
         return s, str(asu_pred.table), int(asu_pred.n_copies)
     else:
-        return None, None
+        return None, None, None
 
 
 @anvil.server.callable
-def predict(sg_in, uc_in, d_min_in):
+def predict(sg_in, uc_in, d_min_in, asu_mol, s):
     ms = miller.build_set(
         crystal_symmetry=cctbx.crystal.symmetry(
             space_group_symbol=sg_in, unit_cell=(uc_in)
@@ -48,15 +48,16 @@ def predict(sg_in, uc_in, d_min_in):
         d_min=float(d_min_in),
     )
     refl = int(ms.size())
-    return refl
+    refl_per_s = refl / (s * asu_mol)
+    return refl_per_s
 
 
 @anvil.server.callable
-def resrange(sg_in, uc_in):
+def resrange(sg_in, uc_in, asu_mol, s):
     res_v_refl = []
     for high_lim in [x / 10.0 for x in range(14, 46, 1)]:
         d_min_in = high_lim
-        ref_per_s = predict(sg_in, uc_in, d_min_in)
+        ref_per_s = predict(sg_in, uc_in, d_min_in, asu_mol, s)
         res_v_refl += [(high_lim, ref_per_s)]
     xpred, ypred = zip(*res_v_refl)
     fit_eq, _ = curve_fit(objective_exp, xpred, ypred, maxfev=500000)
